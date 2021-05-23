@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"image"
+	"image/color"
 	_ "image/jpeg"
-	_ "image/png"
+	"image/png"
 	"os"
 )
 
@@ -49,5 +50,27 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Source image size: %v", srcImage.Bounds())
+	dstImage := image.NewRGBA(srcImage.Bounds())
+
+	width := srcImage.Bounds().Dx()
+	height := srcImage.Bounds().Dy()
+
+	for y := 0; y < height; y += 1 {
+		for x := 0; x < width; x += 1 {
+			r, g, b, _ := srcImage.At(x, y).RGBA()
+			cc := color.RGBA{uint8((r >> 11) << 3), uint8((g >> 10) << 2), uint8((b >> 11) << 3), 0xff}
+			dstImage.SetRGBA(x, y, cc)
+		}
+	}
+
+	dstFile, err := os.Create(dstPath)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v: %v\n", dstPath, err)
+		os.Exit(1)
+	}
+
+	defer dstFile.Close()
+
+	png.Encode(dstFile, dstImage)
 }

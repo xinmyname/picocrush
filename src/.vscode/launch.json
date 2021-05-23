@@ -11,6 +11,10 @@
             "mode": "auto",
             "program": "main.go",
             "args": [
+                "-i",
+                "../images/monster.png",
+                "-o",
+                "crushed.png"
             ]
         }
     ]
