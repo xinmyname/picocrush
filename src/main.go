@@ -1,12 +1,14 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
 	"image"
 	"image/color"
 	_ "image/jpeg"
 	"image/png"
 	"os"
+	"path/filepath"
 )
 
 func main() {
@@ -16,6 +18,12 @@ func main() {
 		println()
 		println("  -i Specify source filename.")
 		println("  -o Specify destination filename.")
+
+		println("  -o Specify destination filename. Output can be .png or .bin")
+		println()
+		println("     .png generates an indexed PNG file")
+		println("     .bin generates a raw binary file, 16bpp RGB 565")
+
 		os.Exit(1)
 	}
 
@@ -72,5 +80,18 @@ func main() {
 
 	defer dstFile.Close()
 
-	png.Encode(dstFile, dstImage)
+	dstExt := filepath.Ext(dstPath)
+
+	if dstExt == ".png" {
+		png.Encode(dstFile, dstImage)
+	} else if dstExt == ".bin" {
+
+		for y := 0; y < height; y += 1 {
+			for x := 0; x < width; x += 1 {
+				r, g, b, _ := dstImage.At(x, y).RGBA()
+				c := uint16(((r >> 11) << 11) | ((g >> 10) << 5) | (b >> 11))
+				binary.Write(dstFile, binary.LittleEndian, c)
+			}
+		}
+	}
 }

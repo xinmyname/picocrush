@@ -14,7 +14,7 @@
                 "-i",
                 "../images/monster.png",
                 "-o",
-                "crushed.png"
+                "crushed.bin"
             ]
         }
     ]
